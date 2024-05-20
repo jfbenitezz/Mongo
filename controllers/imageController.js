@@ -1,13 +1,12 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('node:path');
 const sharp = require('sharp');
-const {ObjectId} = require('mongoose');
+
 const Image = require('../models/imageModel');
 
 const {s3} = require('../helpers/bucket');
 const {PutObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3");
-const { get } = require('node:http');
-const { LATIN7_ESTONIAN_CS } = require('mysql/lib/protocol/constants/charsets');
+
 const createImages = async (req, res) => {
   try {
     
