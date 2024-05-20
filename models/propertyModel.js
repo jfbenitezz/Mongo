@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const { Decimal128 } = require('bson');
-const image = require('./imageModel');
-const User = require('./userModel');
 
 const ACCEPTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'COL'];
 const types = ['House', 'Apartment', 'Condominium', 'Villa', 'Other'];
@@ -37,7 +35,7 @@ const propertySchema = new mongoose.Schema({
   bedrooms: { type: Number, min: 0 }, 
   bathrooms: { type: Number, min: 0 },
   constructionYear: { type: Number, min: 0, max: new Date().getFullYear() },
-  images: [image],
+  profilePictures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }],
 },{timestamps: true});
 
 propertySchema.pre('save', function(next) {
@@ -51,7 +49,10 @@ propertySchema.pre('save', function(next) {
   next();
 });
 
-propertySchema.index({ title: 'text', description: 'text' });
+propertySchema.index(
+  { title: 'text', description: 'text' },
+  { name: 'search_index' }
+);
 const Property = mongoose.model('Property', propertySchema);
 
 module.exports = Property;

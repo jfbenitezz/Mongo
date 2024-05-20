@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const app = express();
 
 const mongoURI = 'mongodb://localhost/Property';
 

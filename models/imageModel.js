@@ -5,4 +5,6 @@ const imageSchema = new mongoose.Schema({
     altText: { type: String },
   }, {timestamps: true});
 
-  module.exports = imageSchema;
+
+const Image = mongoose.model('Image', imageSchema);
+module.exports = Image;
