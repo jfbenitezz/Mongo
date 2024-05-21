@@ -13,18 +13,8 @@ const  getCatalog = async (req, res) => {
       search = search || '';
       const textSearch = search ? { $text: { $search: search } } : {};
 
-      const filterParams = {};
-      for (const key in req.query) {
-        if (key !== 'page' && key !== 'pageSize' && key !== 'search' && key !== 'sortField' && key !== 'sortOrder') {
-            // If the value is a comma-separated string, split it into an array
-            if (req.query[key].includes(',')) {
-                filterParams[key] = { $in: req.query[key].split(',') };
-            } else {
-                filterParams[key] = req.query[key];
-            }
-        }
-    }
-
+      filter = filter || '{}';
+      const filterParams = JSON.parse(filter);
 
       const catalog = await Property.aggregate([
         { // Using `$match` to filter properties based on search query and other filter parameters
