@@ -4,7 +4,7 @@ const sharp = require('sharp');
 
 const Image = require('../models/imageModel');
 
-const {s3} = require('../helpers/bucket');
+const {s3} = require('../middleware/bucket');
 const {PutObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3");
 
 const createImages = async (req, res) => {
@@ -33,7 +33,8 @@ const createImages = async (req, res) => {
      //Saver image reference to database
     const newImage = new Image({
       url: uniqueKey,
-      altText: req.body.altText
+      altText: req.body.altText,
+      user: req.body.user
     });
 
     await newImage.save();
@@ -88,6 +89,13 @@ const getImages = async (req, res) => {
       return res.status(404).json({ error: 'Images not found' });
     }
 
+        // Check if the authenticated user is the owner of the images
+    const userId = req.userId; // Get authenticated user's ID
+    for (const image of images) {
+      if (image.user.toString() !== userId) {
+        return res.status(403).json({ error: "Access denied. You are not the owner of one or more images." });
+      }
+    }
     const imageUrls = images.map(image => image.url);
 
     // Delete images from S3

@@ -1,3 +1,5 @@
 node_modules
 .env
 image.html
+middleware/fake.js
+middleware/admin.js

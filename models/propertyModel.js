@@ -3,12 +3,14 @@ const { Decimal128 } = require('bson');
 
 const ACCEPTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'COL'];
 const types = ['House', 'Apartment', 'Condominium', 'Villa', 'Other'];
+const purposes = ['For Rent', 'For Sale'];
 
 const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
   //Either leave optional or add default owner later
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   availability: { type: Boolean, default: true },
+  purpose: { type: String, required: true, enum: purposes },
   description: { type: String, required: true },
   type: { type: String, required: true, enum: types},
   price: {

@@ -1,13 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const controllers = require('../controllers/imageController');
+const {upload} = require('../middleware/multer');
+const auth = require('../middleware/authToken.js');
 
-//Aply image Middleware to request
-const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
+//Falta aplicar middleware para obtener id
 router.post('/', upload.single('image'), controllers.createImages);
 router.get('/', controllers.getImages);
-router.delete('/', controllers.deleteImages);
+router.delete('/', auth.verifyToken, controllers.deleteImages);
 module.exports = router;
