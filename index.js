@@ -13,7 +13,7 @@ const cache = apicache.middleware;
 
 // Custom cache condition to only cache GET requests and exclude the /catalog route
 const onlyGetRequests = (req, res) => {
-  return req.method === 'GET' && !req.url.startsWith('/catalog');
+  return req.method === 'GET'
 };
 app.use(cache('5 minutes', onlyGetRequests));
 
@@ -42,7 +42,7 @@ const rentalsRoute = require("./routes/rentals")
 const catalogRoute = require("./routes/catalog")
 const filterRoute = require("./routes/filter")
 const imageRoute = require("./routes/images")
-const loginRoute = require("./routes/login")
+const authRoute = require("./routes/auth")
 
 app.use("/properties", propertiesRoute)
 app.use("/users", usersRoute)
@@ -50,7 +50,7 @@ app.use("/rentals", rentalsRoute)
 app.use("/catalog", catalogRoute)
 app.use("/filter", filterRoute)
 app.use("/images", imageRoute)
-app.use("/login", loginRoute)
+app.use("/auth", authRoute)
 
 env = process.env.NODE_ENV || 'development';
 app.use((err, req, res, next) => {

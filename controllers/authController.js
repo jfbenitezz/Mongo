@@ -8,7 +8,7 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshToken = (user) => {
-    return jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+    return jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '30d' });
 };
 
 const loginUser = async (req, res) => {
@@ -39,7 +39,8 @@ const loginUser = async (req, res) => {
     res.cookie('refresh-token', refreshToken, { httpOnly: true, secure: true });
     res.status(200).json({
         message: 'Login successful',
-        accessToken
+        accessToken,
+        refreshToken
     });
 }
 
@@ -57,14 +58,9 @@ const refreshToken = async (req, res) => {
         }
 
         const newAccessToken = generateAccessToken(user);
-        const newRefreshToken = generateRefreshToken(user);
-
-        user.refreshToken = newRefreshToken;
-        await user.save();
 
         res.cookie('auth-token', newAccessToken, { httpOnly: true, secure: true });
-        res.cookie('refresh-token', newRefreshToken, { httpOnly: true, secure: true });
-        res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+        res.json({ accessToken: newAccessToken});
     } catch (error) {
         return res.status(403).send({ error: 'Invalid refresh token' });
     }
@@ -84,9 +80,7 @@ const logoutUser = async (req, res) => {
         }
         res.clearCookie('auth-token');
         res.clearCookie('refresh-token');
-        res.status(204).json({
-            message: 'Logout successful'
-        });
+        res.status(204)
     } catch (error) {
         res.status(400).send({ error: 'Invalid token' });
     }

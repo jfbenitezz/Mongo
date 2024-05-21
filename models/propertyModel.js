@@ -7,7 +7,6 @@ const purposes = ['For Rent', 'For Sale'];
 
 const propertySchema = new mongoose.Schema({
   title: { type: String, required: true },
-  //Either leave optional or add default owner later
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   availability: { type: Boolean, default: true },
   purpose: { type: String, required: true, enum: purposes },
