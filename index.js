@@ -30,6 +30,12 @@ app.disable('x-powered-by')
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
+const cors = require('cors');
+const corsOptions = {
+  methods: 'GET,PUT,POST,DELETE',
+};
+app.use(cors(corsOptions));
+
 const usersRoute = require("./routes/users")
 const propertiesRoute = require("./routes/properties")
 const rentalsRoute = require("./routes/rentals")

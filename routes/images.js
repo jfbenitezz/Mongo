@@ -5,7 +5,8 @@ const {upload} = require('../middleware/multer');
 const auth = require('../middleware/authToken.js');
 
 //Falta aplicar middleware para obtener id
-router.post('/', upload.single('image'), controllers.createImages);
+router.post('/', upload.array('image',10), controllers.createImages);
 router.get('/', controllers.getImages);
 router.delete('/', auth.verifyToken, controllers.deleteImages);
+router.put('/:id', auth.verifyToken, controllers.updateText);
 module.exports = router;

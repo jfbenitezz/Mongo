@@ -9,38 +9,48 @@ const {PutObjectCommand, DeleteObjectCommand} = require("@aws-sdk/client-s3");
 
 const createImages = async (req, res) => {
   try {
-    
-    //Create unique id
-    const uniqueId = uuidv4();
-    const extension = path.extname(req.file.originalname);
-    const uniqueKey = `${uniqueId}${extension}`;
-
-    //Resize image
-    const Buffer = await sharp(req.file.buffer)
-    .resize({ height: 800, width: 600, fit: "contain" }).toBuffer()
-
-    //Create command for s3 bucket
-    const Params = {
-      Bucket: process.env.BUCKET_NAME,
-      Key: uniqueKey,
-      Body: Buffer,
-      ContentType: req.file.mimetype
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded.' });
     }
-    //Send command
-    const command = new PutObjectCommand(Params);
-    await s3.send(command);
+    const savedImages = [];
+    let counter = 0;
+    for (const file of req.files) {
+      //Create unique id
+      counter++;
+      const uniqueId = uuidv4();
+      const extension = path.extname(file.originalname);
+      const uniqueKey = `${uniqueId}${extension}`;
 
-     //Saver image reference to database
-    const newImage = new Image({
-      url: uniqueKey,
-      altText: req.body.altText,
-      user: req.body.user
+      //Resize image
+      const Buffer = await sharp(file.buffer)
+      .resize({ height: 800, width: 600, fit: "contain" }).toBuffer()
+
+      //Create command for s3 bucket
+      const Params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: uniqueKey,
+        Body: Buffer,
+        ContentType: file.mimetype
+      }
+      //Send command
+      const command = new PutObjectCommand(Params);
+      await s3.send(command);
+
+      //Saver image reference to database
+      const newImage = new Image({
+        url: uniqueKey,
+        altText: `${req.body.altText}${counter}`,
+        user: req.body.user
+      });
+
+      await newImage.save();
+      console.log('Image created:', newImage);
+      savedImages.push(newImage);
+    }
+    res.status(201).json({
+      message: 'Upload successful',
+      images: savedImages
     });
-
-    await newImage.save();
-    console.log('Image created:', newImage);
-    res.status(201).json(newImage);
-    
   } catch (error) {
     console.error(`Error saving new image: ${error.message}`);
     res.status(500).json({ error: error.message });
@@ -133,5 +143,34 @@ const getImages = async (req, res) => {
       throw err;
     }
   };
+
+  const updateText = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { altText } = req.body;
+
+      const image = await Image.findById(id);
   
-module.exports = { createImages, getImages, deleteImages };
+      if (!image) {
+        return res.status(404).json({ error: 'Image not found' });
+      }
+  
+      const userId = req.userId; // Get authenticated user's ID
+      if (image.user.toString() !== userId) {
+        return res.status(403).json({ error: "Access denied. You are not the owner of one or more images." });
+      }
+  
+      const updatedImage = await Image.findByIdAndUpdate(
+        id,
+        { altText },
+      );
+
+      console.log('Image updated:', updatedImage);
+      res.status(201).json(updatedImage);
+    } catch (error) {
+      console.error(`Error updating image: ${error.message}`);
+      res.status(500).json({ error: error.message });
+    }
+  };
+  
+module.exports = { createImages, getImages, deleteImages, updateText };
