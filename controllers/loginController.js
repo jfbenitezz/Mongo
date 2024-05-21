@@ -3,6 +3,14 @@ const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 const { validateLogin } = require('../middleware/validator');
 
+const generateAccessToken = (user) => {
+    return jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '15m' });
+};
+
+const generateRefreshToken = (user) => {
+    return jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+};
+
 const loginUser = async (req, res) => {
     const { error } = validateLogin(req.body);
     if (error) {
@@ -18,12 +26,72 @@ const loginUser = async (req, res) => {
         return res.status(401).json({ error: 'Invalid password' });
     }
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '1h' });
+    // Generate access and refresh tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    // Set the token in an HTTP-only cookie
-    res.cookie('auth-token', token, { httpOnly: true, secure: true, maxAge: 3600000 }); 
+    // Save refresh token in database
+    user.refreshToken = refreshToken;
+    await user.save();
 
-    // Send a response to the client
-    res.send('Logged in successfully');
+    // Set cookies
+    res.cookie('auth-token', accessToken, { httpOnly: true, secure: true });
+    res.cookie('refresh-token', refreshToken, { httpOnly: true, secure: true });
+    res.status(200).json({
+        message: 'Login successful',
+        accessToken,
+        refreshToken
+    });
 }
-module.exports = { loginUser }
+
+
+
+const refreshToken = async (req, res) => {
+    const refreshToken = req.cookies['refresh-token'];
+    if (!refreshToken) return res.status(401).send({ error: 'Refresh token missing' });
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded._id);
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).send({ error: 'Invalid refresh token' });
+        }
+
+        const newAccessToken = generateAccessToken(user);
+        const newRefreshToken = generateRefreshToken(user);
+
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        res.cookie('auth-token', newAccessToken, { httpOnly: true, secure: true });
+        res.cookie('refresh-token', newRefreshToken, { httpOnly: true, secure: true });
+        res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    } catch (error) {
+        return res.status(403).send({ error: 'Invalid refresh token' });
+    }
+};
+
+
+const logoutUser = async (req, res) => {
+    const refreshToken = req.cookies['refresh-token'];
+    if (!refreshToken) return res.status(400).send({ error: 'Refresh token missing' });
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded._id);
+        if (user) {
+            user.refreshToken = null;
+            await user.save();
+        }
+        res.clearCookie('auth-token');
+        res.clearCookie('refresh-token');
+        res.status(204).json({
+            message: 'Logout successful'
+        });
+    } catch (error) {
+        res.status(400).send({ error: 'Invalid token' });
+    }
+}
+
+
+module.exports = { loginUser, refreshToken, logoutUser };

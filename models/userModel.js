@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   profilePictures: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }],
   ratings: { type: Number, min: 0, max: 10 },
   isAdmin: { type: Boolean, default: false },
+  refreshToken: { type: String }
 }, {timestamps: true});
 
 const User = mongoose.model('User', userSchema);
