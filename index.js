@@ -39,10 +39,12 @@ app.use(cors(corsOptions));
 const usersRoute = require("./routes/users")
 const propertiesRoute = require("./routes/properties")
 const rentalsRoute = require("./routes/rentals")
+const purchaseRoute = require("./routes/purchase")
 const catalogRoute = require("./routes/catalog")
 const filterRoute = require("./routes/filter")
 const imageRoute = require("./routes/images")
 const authRoute = require("./routes/auth")
+
 
 app.use("/properties", propertiesRoute)
 app.use("/users", usersRoute)
@@ -51,6 +53,7 @@ app.use("/catalog", catalogRoute)
 app.use("/filter", filterRoute)
 app.use("/images", imageRoute)
 app.use("/auth", authRoute)
+app.use("/purchase", purchaseRoute)
 
 env = process.env.NODE_ENV || 'development';
 app.use((err, req, res, next) => {
