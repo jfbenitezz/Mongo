@@ -15,7 +15,7 @@ async function getExchangeRate(baseCurrency, targetCurrency) {
       if (baseCurrency === targetCurrency) {
         return 1
       }
-      const response = await axios.get(`https://v6.exchangerate-api.com/v6/481de002e8dd0a9fb840e4a5/pair/${baseCurrency}/${targetCurrency}`);
+      const response = await axios.get(`https://v6.exchangerate-api.com/v6/${process.env.API_KEY}/pair/${baseCurrency}/${targetCurrency}`);
       const { conversion_rate } = response.data;
 
       return conversion_rate;

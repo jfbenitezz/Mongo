@@ -8,3 +8,4 @@ router.get('/:id', controllers.readProperty);
 router.put('/:id', auth.verifyToken, controllers.updateProperty); 
 router.delete('/:id', auth.verifyToken, controllers.deleteProperty);
 module.exports = router;
+
