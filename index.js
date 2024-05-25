@@ -65,4 +65,23 @@ app.use((err, req, res, next) => {
   }
 });
 
+// Schedule updating rates to run once every day at 12:00 AM (midnight)
+const exchange = new Map();
+const { getExchangeRateCache, setExchangeRateCache } = require('./Misc/rateCache');
+const { prefetchExchangeRates } = require('./Misc/currency');
+const cron = require('node-cron');
+
+// Initalize cacheRates once at startup
+console.log("Setting new cache...");
+prefetchExchangeRates(exchange).then(() => {
+    console.log("Updated exchange rate cache:", getExchangeRateCache());
+});
+
+cron.schedule('0 0 * * *', async () => {
+  console.log('Fetching and storing exchange rates...');
+  await prefetchExchangeRates(exchange);
+}, {
+  timezone: 'America/Bogota' 
+});
+
 module.exports = { app };

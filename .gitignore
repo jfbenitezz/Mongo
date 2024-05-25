@@ -1,5 +1,6 @@
 node_modules
 .env
 image.html
-middleware/fake.js
-middleware/admin.js
+Misc/admin.js
+Misc/fake.js
+nodemon.json

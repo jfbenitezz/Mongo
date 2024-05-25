@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Decimal128 } = require('bson');
 
-const ACCEPTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'COL'];
+const ACCEPTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'COP'];
 const types = ['House', 'Apartment', 'Condominium', 'Villa', 'Other'];
 const purposes = ['For Rent', 'For Sale'];
 
