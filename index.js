@@ -33,6 +33,8 @@ app.use(cookieParser())
 const cors = require('cors');
 const corsOptions = {
   methods: 'GET,PUT,POST,DELETE',
+  credentials: true,
+  origin: true
 };
 app.use(cors(corsOptions));
 
@@ -73,7 +75,7 @@ const cron = require('node-cron');
 
 // Initalize cacheRates once at startup
 console.log("Setting new cache...");
-//prefetchExchangeRates(exchange) Ponlo de vuelta
+prefetchExchangeRates(exchange)
 
 cron.schedule('0 0 * * *', async () => {
   console.log('Fetching and storing exchange rates...');

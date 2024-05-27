@@ -78,9 +78,7 @@ const logoutUser = async (req, res) => {
             user.refreshToken = null;
             await user.save();
         }
-        res.clearCookie('auth-token');
-        res.clearCookie('refresh-token');
-        res.status(204)
+        res.status(204).send();
     } catch (error) {
         res.status(400).send({ error: 'Invalid token' });
     }
