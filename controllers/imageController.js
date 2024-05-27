@@ -61,7 +61,6 @@ const getImages = async (req, res) => {
     try {
       let { ids } = req.query;
       ids = ids.split(",")
-      console.log(ids)
 
       const images = await Image.find({ _id: { $in: ids } });
   

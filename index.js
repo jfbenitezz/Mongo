@@ -73,9 +73,7 @@ const cron = require('node-cron');
 
 // Initalize cacheRates once at startup
 console.log("Setting new cache...");
-prefetchExchangeRates(exchange).then(() => {
-    console.log("Updated exchange rate cache:", getExchangeRateCache());
-});
+//prefetchExchangeRates(exchange) Ponlo de vuelta
 
 cron.schedule('0 0 * * *', async () => {
   console.log('Fetching and storing exchange rates...');

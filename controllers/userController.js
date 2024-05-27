@@ -64,7 +64,7 @@ const updateUser = async (req, res) => {
 const readUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const targetUser = await User.findById(id).select('-password -isAdmin');
+    const targetUser = await User.findById(id).select('-password -isAdmin -refreshToken');
     if (!targetUser) {
       return res.status(404).json({ error: "User not found" });
     }
